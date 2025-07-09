@@ -18,14 +18,22 @@ const NewMainScene = () => {
 
     try {
       const gl = setupCanvas(canvas, CANVAS_WIDTH, CANVAS_HEIGHT)
-      const { scene, freddy } = createDemoScene(gl, VERTEX_SHADER, FRAGMENT_SHADER)
-      renderer = initializeRenderer(gl, scene, freddy, scene.mainObj, scene.cylinder2)
-
+      const { scene, cube, mainObj, cylinder2 } = createDemoScene(gl)
+      
+      // Create a simple renderer that just spins the cube
+      const rotationSpeed = 0.02 // radians per frame
+      
       let previousTimestamp
       const frameLoop = timestamp => {
         if (!previousTimestamp) previousTimestamp = timestamp
         const delta = timestamp - previousTimestamp
-        renderer.onUpdate(delta)
+        
+        // Rotate the cube
+        cube.rotate(rotationSpeed, rotationSpeed * 0.5, rotationSpeed * 0.3)
+        
+        // Render the scene
+        scene.render()
+        
         previousTimestamp = timestamp
         requestAnimationFrame(frameLoop)
       }
@@ -34,12 +42,14 @@ const NewMainScene = () => {
       alert(e.message)
     }
 
-    return () => renderer?.dispose()
+    return () => {
+      // Cleanup if needed
+    }
   }, [])
 
   return (
     <article>
-      <p>WASD + QE to move, F to spin Freddy</p>
+      <p>Spinning Cube Demo</p>
       <canvas width={CANVAS_WIDTH} height={CANVAS_HEIGHT} ref={canvasRef}></canvas>
     </article>
   )

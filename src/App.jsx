@@ -7,15 +7,17 @@ import './App.css'
 
 import RandomObjScene from './scenes/RandomObjScene'
 import NewMainScene from './scenes/NewMainScene'
-
+import ShapesDemoScene from './scenes/ShapesDemoScene.jsx'
 
 const App = () => {
   return (
     <article className="App">
       <main>
         <Routes>
-        <Route path="" element={<NewMainScene />} />
-        <Route path="sandbox" element={<RandomObjScene />} />
+          <Route path="" element={<ShapesDemoScene />} />
+          <Route path="sandbox" element={<RandomObjScene />} />
+          <Route path="cube" element={<NewMainScene />} />
+          <Route path="shapes" element={<ShapesDemoScene />} />
         </Routes>
       </main>
     </article>

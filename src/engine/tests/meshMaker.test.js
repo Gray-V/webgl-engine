@@ -23,7 +23,7 @@ describe('meshMaker', () => {
   it('creates a cylinder with multiple faces', () => {
     const cylinder = meshMaker.cylinderConstructor(50, 100, 12)
     expect(cylinder.verts.length).toBeGreaterThan(0)
-    expect(cylinder.color).toEqual([1, 0.5, 0])
+    expect(cylinder.color).toEqual([1, 0, 0])
   })
 
   it('creates a rectangle with six vertices (two triangles)', () => {
@@ -37,5 +37,18 @@ describe('meshMaker', () => {
     const boxObject = meshMaker.objectConstructor(boxMesh)
     expect(boxObject.meshData).toBe(boxMesh)
     expect(boxObject.position).toEqual([0, 0, 0])
+  })
+
+  it('creates objects from JSON data', () => {
+    const jsonData = {
+      vertices: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+      position: [1, 2, 3],
+      rotation: [0, 0, 0],
+      scale: [1, 1, 1]
+    }
+    const obj = meshMaker.customFromJson(jsonData, [1, 0, 0])
+    expect(obj.meshData.verts).toEqual(jsonData.vertices)
+    expect(obj.position).toEqual(jsonData.position)
+    expect(obj.meshData.color).toEqual([1, 0, 0])
   })
 })
