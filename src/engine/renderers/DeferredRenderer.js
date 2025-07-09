@@ -17,7 +17,82 @@ import { m4 } from '../matrix.js'
  * - Can't handle transparency easily
  */
 
-// G-Buffer vertex shader
+// G-Buffer vertex shader for WebGL2
+const GBUFFER_VERTEX_SHADER_WEBGL2 = `#version 300 es
+precision highp float;
+
+in vec3 vertexPosition;
+in vec3 vertexNormal;
+
+uniform mat4 cameraTransform;
+uniform mat4 sceneTransform;
+uniform mat4 objectTransform;
+uniform mat4 projectionMatrix;
+uniform mat3 normalMatrix;
+
+uniform vec3 objectColor;
+uniform bool showNormals;
+uniform bool clockwise;
+uniform bool flatShading;
+
+out vec3 vColor;
+out vec3 vNormal;
+out vec3 vFragPos;
+out vec3 vWorldPos;
+
+void main(void) {
+  mat4 modelView = cameraTransform * sceneTransform * objectTransform;
+  vec4 worldPos = modelView * vec4(vertexPosition, 1.0);
+  gl_Position = projectionMatrix * modelView * vec4(vertexPosition, 1.0);
+
+  vNormal = normalize(normalMatrix * vertexNormal);
+  if (flatShading) {
+    vNormal = normalize(mat3(modelView) * vertexNormal);
+  }
+
+  if (clockwise) {
+    vNormal = -vNormal;
+  }
+
+  vFragPos = worldPos.xyz;
+  vWorldPos = worldPos.xyz;
+
+  if (showNormals) {
+    vColor = vNormal * 0.5 + 0.5;
+  } else {
+    vColor = objectColor;
+  }
+}
+`
+
+// G-Buffer fragment shader - outputs to multiple render targets (WebGL 2)
+const GBUFFER_FRAGMENT_SHADER_WEBGL2 = `#version 300 es
+precision highp float;
+
+in vec3 vColor;
+in vec3 vNormal;
+in vec3 vFragPos;
+in vec3 vWorldPos;
+
+uniform float shininess;
+uniform float metallic;
+uniform float roughness;
+
+layout(location = 0) out vec4 outAlbedo;
+layout(location = 1) out vec4 outNormal;
+layout(location = 2) out vec4 outPosition;
+layout(location = 3) out vec4 outMaterial;
+
+void main(void) {
+  outAlbedo = vec4(vColor, 1.0);
+  vec3 normal = normalize(vNormal);
+  outNormal = vec4(normal * 0.5 + 0.5, 1.0);
+  outPosition = vec4(vFragPos, 1.0);
+  outMaterial = vec4(shininess / 256.0, metallic, roughness, 1.0);
+}
+`
+
+// G-Buffer vertex shader for WebGL1 (unchanged)
 const GBUFFER_VERTEX_SHADER = `
 #ifdef GL_ES
 precision highp float;
@@ -67,37 +142,6 @@ void main(void) {
 }
 `
 
-// G-Buffer fragment shader - outputs to multiple render targets (WebGL 2)
-const GBUFFER_FRAGMENT_SHADER_WEBGL2 = `
-#ifdef GL_ES
-precision highp float;
-#endif
-
-varying vec3 vColor;
-varying vec3 vNormal;
-varying vec3 vFragPos;
-varying vec3 vWorldPos;
-
-uniform float shininess;
-uniform float metallic;
-uniform float roughness;
-
-void main(void) {
-  // Output 0: Albedo (diffuse color)
-  gl_FragData[0] = vec4(vColor, 1.0);
-  
-  // Output 1: Normal (packed)
-  vec3 normal = normalize(vNormal);
-  gl_FragData[1] = vec4(normal * 0.5 + 0.5, 1.0);
-  
-  // Output 2: Position (world space)
-  gl_FragData[2] = vec4(vFragPos, 1.0);
-  
-  // Output 3: Material properties
-  gl_FragData[3] = vec4(shininess / 256.0, metallic, roughness, 1.0);
-}
-`
-
 // Simplified G-Buffer fragment shader for WebGL 1
 const GBUFFER_FRAGMENT_SHADER_WEBGL1 = `
 #ifdef GL_ES
@@ -136,8 +180,8 @@ void main(void) {
 }
 `
 
-// Lighting fragment shader
-const LIGHTING_FRAGMENT_SHADER = `
+// Lighting fragment shader for WebGL2 (full G-buffer)
+const LIGHTING_FRAGMENT_SHADER_WEBGL2 = `
 #ifdef GL_ES
 precision highp float;
 #endif
@@ -158,74 +202,123 @@ uniform int numLights;
 uniform vec3 cameraPosition;
 
 void main(void) {
-  // Sample G-buffer textures
   vec4 albedo = texture2D(albedoTexture, vTexCoord);
-  
-  // For WebGL 1, we'll use simplified lighting since we don't have all the G-buffer data
-  vec3 normal = vec3(0.0, 0.0, 1.0); // Default normal
-  vec3 position = vec3(0.0, 0.0, 0.0); // Default position
-  float shininess = 32.0;
-  float metallic = 0.0;
-  float roughness = 0.5;
-  
-  // Skip if this is background (no geometry)
+  vec3 normal = texture2D(normalTexture, vTexCoord).rgb * 2.0 - 1.0;
+  vec3 position = texture2D(positionTexture, vTexCoord).xyz;
+  vec3 material = texture2D(materialTexture, vTexCoord).rgb;
+  float shininess = material.r * 256.0;
+  float metallic = material.g;
+  float roughness = material.b;
+
   if (albedo.a < 0.1) {
     gl_FragColor = vec4(ambientColor, 1.0);
     return;
   }
-  
+
   vec3 viewDir = normalize(cameraPosition - position);
-  
-  // Initialize lighting
   vec3 ambient = ambientColor * 0.3;
   vec3 diffuse = vec3(0.0);
   vec3 specular = vec3(0.0);
-  
-  // Main directional light
+
   vec3 lightDir = normalize(lightDirection);
   float diff = max(dot(normal, -lightDir), 0.0);
   diffuse += diff * lightColor;
-  
-  // Specular reflection for main light
+
   vec3 reflectDir = reflect(lightDir, normal);
   float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
   specular += spec * lightColor;
-  
-  // Point lights
+
   for (int i = 0; i < 4; i++) {
     if (i >= numLights) break;
-    
     vec3 lightDir = normalize(lightPositions[i] - position);
     float distance = length(lightPositions[i] - position);
     float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
-    
     float diff = max(dot(normal, lightDir), 0.0);
     diffuse += diff * lightColors[i] * attenuation;
-    
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
     specular += spec * lightColors[i] * attenuation;
   }
-  
-  // Fresnel effect for metallic materials
+
   float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 5.0);
   vec3 fresnelColor = mix(vec3(0.04), albedo.rgb, metallic);
   specular += fresnel * fresnelColor;
-  
-  // Combine lighting
+
   vec3 litColor = ambient + diffuse + specular;
-  
-  // Apply material properties
   vec3 finalColor = albedo.rgb * litColor;
-  
-  // Add some rim lighting for better shape definition
   float rim = 1.0 - max(dot(normal, viewDir), 0.0);
   rim = pow(rim, 4.0);
   finalColor += rim * 0.2 * albedo.rgb;
-  
-  // Gamma correction
   finalColor = pow(finalColor, vec3(1.0 / 2.2));
-  
+  gl_FragColor = vec4(finalColor, 1.0);
+}
+`
+
+// Lighting fragment shader for WebGL1 (fallback)
+const LIGHTING_FRAGMENT_SHADER_WEBGL1 = `
+#ifdef GL_ES
+precision highp float;
+#endif
+
+varying vec2 vTexCoord;
+
+uniform sampler2D albedoTexture;
+uniform vec3 lightDirection;
+uniform vec3 lightColor;
+uniform vec3 ambientColor;
+uniform vec3 lightPositions[4];
+uniform vec3 lightColors[4];
+uniform int numLights;
+uniform vec3 cameraPosition;
+
+void main(void) {
+  vec4 albedo = texture2D(albedoTexture, vTexCoord);
+  vec3 normal = vec3(0.0, 0.0, 1.0);
+  vec3 position = vec3(0.0, 0.0, 0.0);
+  float shininess = 32.0;
+  float metallic = 0.0;
+  float roughness = 0.5;
+
+  if (albedo.a < 0.1) {
+    gl_FragColor = vec4(ambientColor, 1.0);
+    return;
+  }
+
+  vec3 viewDir = normalize(cameraPosition - position);
+  vec3 ambient = ambientColor * 0.5;
+  vec3 diffuse = vec3(0.0);
+  vec3 specular = vec3(0.0);
+
+  vec3 lightDir = normalize(lightDirection);
+  float diff = max(dot(normal, -lightDir), 0.0);
+  diffuse += diff * lightColor;
+
+  vec3 reflectDir = reflect(lightDir, normal);
+  float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+  specular += spec * lightColor;
+
+  for (int i = 0; i < 4; i++) {
+    if (i >= numLights) break;
+    vec3 lightDir = normalize(lightPositions[i] - position);
+    float distance = length(lightPositions[i] - position);
+    float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
+    float diff = max(dot(normal, lightDir), 0.0);
+    diffuse += diff * lightColors[i] * attenuation;
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+    specular += spec * lightColors[i] * attenuation;
+  }
+
+  float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 5.0);
+  vec3 fresnelColor = mix(vec3(0.04), albedo.rgb, metallic);
+  specular += fresnel * fresnelColor;
+
+  vec3 litColor = ambient + diffuse + specular;
+  vec3 finalColor = albedo.rgb * litColor;
+  float rim = 1.0 - max(dot(normal, viewDir), 0.0);
+  rim = pow(rim, 4.0);
+  finalColor += rim * 0.2 * albedo.rgb;
+  finalColor = pow(finalColor, vec3(1.0 / 2.2));
   gl_FragColor = vec4(finalColor, 1.0);
 }
 `
@@ -245,20 +338,35 @@ export class DeferredRenderer extends BaseRenderer {
     
     // Check if WebGL 2 is available for multiple render targets
     this.isWebGL2 = gl.getParameter(gl.VERSION).includes('WebGL 2')
-    
-    if (this.isWebGL2) {
-      // Create G-buffer framebuffer with 4 color attachments
+    let supportsMRT = false
+
+    if (this.isWebGL2 && typeof gl.drawBuffers === 'function') {
+      const maxColorAttachments = gl.getParameter(gl.MAX_COLOR_ATTACHMENTS);
+      if (maxColorAttachments >= 4) {
+        supportsMRT = true;
+      }
+    }
+
+    if (this.isWebGL2 && supportsMRT) {
       this.gBuffer = this.createFramebuffer(4, true)
     } else {
-      // For WebGL 1, we'll use a simpler approach with fewer render targets
-      console.warn('WebGL 1 detected. Using simplified deferred rendering.')
+      console.warn('Multiple Render Targets not supported. Using simplified deferred rendering.')
       this.gBuffer = this.createFramebuffer(1, true)
+      this.isWebGL2 = false // force fallback path for shaders
     }
     
     // Create shader programs
-    const gBufferFragmentShader = this.isWebGL2 ? GBUFFER_FRAGMENT_SHADER_WEBGL2 : GBUFFER_FRAGMENT_SHADER_WEBGL1
-    this.gBufferProgram = this.createShaderProgram(GBUFFER_VERTEX_SHADER, gBufferFragmentShader)
-    this.lightingProgram = this.createShaderProgram(LIGHTING_VERTEX_SHADER, LIGHTING_FRAGMENT_SHADER)
+    let gBufferVertexShader, gBufferFragmentShader;
+    if (this.isWebGL2) {
+      gBufferVertexShader = GBUFFER_VERTEX_SHADER_WEBGL2;
+      gBufferFragmentShader = GBUFFER_FRAGMENT_SHADER_WEBGL2;
+      this.lightingProgram = this.createShaderProgram(LIGHTING_VERTEX_SHADER, LIGHTING_FRAGMENT_SHADER_WEBGL2);
+    } else {
+      gBufferVertexShader = GBUFFER_VERTEX_SHADER;
+      gBufferFragmentShader = GBUFFER_FRAGMENT_SHADER_WEBGL1;
+      this.lightingProgram = this.createShaderProgram(LIGHTING_VERTEX_SHADER, LIGHTING_FRAGMENT_SHADER_WEBGL1);
+    }
+    this.gBufferProgram = this.createShaderProgram(gBufferVertexShader, gBufferFragmentShader);
     
     // Get uniform locations for G-buffer pass
     this.uniforms = {
@@ -545,7 +653,11 @@ export class DeferredRenderer extends BaseRenderer {
       gl.deleteFramebuffer(this.gBuffer.framebuffer)
       this.gBuffer.textures.forEach(texture => gl.deleteTexture(texture))
       if (this.gBuffer.depthTexture) {
-        gl.deleteTexture(this.gBuffer.depthTexture)
+        if (this.gBuffer.depthTexture.isRenderbuffer) {
+          gl.deleteRenderbuffer(this.gBuffer.depthTexture.renderbuffer)
+        } else {
+          gl.deleteTexture(this.gBuffer.depthTexture)
+        }
       }
     }
     
