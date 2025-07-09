@@ -16,13 +16,49 @@ class Scene {
     this.mainObj = mainObj
     this.cylinder2 = cylinder2
 
+    // Lighting setup
+    this.lights = {
+      directional: {
+        direction: [1, -1, 1],
+        color: [1.0, 1.0, 1.0],
+        intensity: 1.0
+      },
+      pointLights: [
+        { position: [200, 100, -200], color: [1.0, 0.8, 0.6], intensity: 0.8 },
+        { position: [-200, 100, -200], color: [0.6, 0.8, 1.0], intensity: 0.6 },
+        { position: [0, 200, -100], color: [1.0, 1.0, 0.8], intensity: 0.4 },
+        { position: [0, -100, -300], color: [0.8, 1.0, 0.8], intensity: 0.3 }
+      ]
+    }
+
+    // Material properties
+    this.material = {
+      shininess: 32.0,
+      metallic: 0.0,
+      roughness: 0.5
+    }
+
     this.shaderProgram = this.initShaderProgram(this.gl, this.vertexShaderSource, this.fragmentShaderSource)
 
+    // Get uniform locations
     this.cameraTransformLoc = this.gl.getUniformLocation(this.shaderProgram, 'cameraTransform')
     this.sceneTransformLoc = this.gl.getUniformLocation(this.shaderProgram, 'sceneTransform')
     this.projectionMatrixLoc = this.gl.getUniformLocation(this.shaderProgram, 'projectionMatrix')
     this.objectColorLoc = this.gl.getUniformLocation(this.shaderProgram, 'objectColor')
     this.flatShadingLoc = this.gl.getUniformLocation(this.shaderProgram, 'flatShading')
+    
+    // New lighting uniforms
+    this.lightDirectionLoc = this.gl.getUniformLocation(this.shaderProgram, 'lightDirection')
+    this.lightColorLoc = this.gl.getUniformLocation(this.shaderProgram, 'lightColor')
+    this.ambientColorLoc = this.gl.getUniformLocation(this.shaderProgram, 'ambientColor')
+    this.lightPositionsLoc = this.gl.getUniformLocation(this.shaderProgram, 'lightPositions')
+    this.lightColorsLoc = this.gl.getUniformLocation(this.shaderProgram, 'lightColors')
+    this.numLightsLoc = this.gl.getUniformLocation(this.shaderProgram, 'numLights')
+    
+    // Material uniforms
+    this.shininessLoc = this.gl.getUniformLocation(this.shaderProgram, 'shininess')
+    this.metallicLoc = this.gl.getUniformLocation(this.shaderProgram, 'metallic')
+    this.roughnessLoc = this.gl.getUniformLocation(this.shaderProgram, 'roughness')
 
     // Set initial projection matrix
     this.setProjection(perspective)
@@ -96,9 +132,38 @@ class Scene {
     this.activeCamera = camera
   }
 
+  // Update lighting uniforms
+  updateLightingUniforms() {
+    const gl = this.gl
+    
+    // Directional light
+    const dirLight = this.lights.directional
+    gl.uniform3fv(this.lightDirectionLoc, dirLight.direction)
+    gl.uniform3fv(this.lightColorLoc, dirLight.color)
+    gl.uniform3fv(this.ambientColorLoc, [0.2, 0.2, 0.2])
+    
+    // Point lights
+    const positions = []
+    const colors = []
+    for (let i = 0; i < this.lights.pointLights.length; i++) {
+      const light = this.lights.pointLights[i]
+      positions.push(...light.position)
+      colors.push(light.color[0] * light.intensity, light.color[1] * light.intensity, light.color[2] * light.intensity)
+    }
+    
+    gl.uniform3fv(this.lightPositionsLoc, positions)
+    gl.uniform3fv(this.lightColorsLoc, colors)
+    gl.uniform1i(this.numLightsLoc, this.lights.pointLights.length)
+    
+    // Material properties
+    gl.uniform1f(this.shininessLoc, this.material.shininess)
+    gl.uniform1f(this.metallicLoc, this.material.metallic)
+    gl.uniform1f(this.roughnessLoc, this.material.roughness)
+  }
+
   render() {
     const gl = this.gl
-    gl.clearColor(0.8, 0.8, 0.8, 1.0)
+    gl.clearColor(0.1, 0.1, 0.15, 1.0) // Darker background for better contrast
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     gl.enable(gl.DEPTH_TEST)
 
@@ -113,10 +178,25 @@ class Scene {
 
     gl.uniform1i(this.flatShadingLoc, this.flatShading ? 1 : 0)
 
+    // Update lighting uniforms
+    this.updateLightingUniforms()
+
     for (const obj of this.objects) {
       gl.uniform3fv(this.objectColorLoc, obj.meshData.color)
+      
+      // Apply per-object material properties if available
+      if (obj.material) {
+        gl.uniform1f(this.shininessLoc, obj.material.shininess || this.material.shininess)
+        gl.uniform1f(this.metallicLoc, obj.material.metallic || this.material.metallic)
+        gl.uniform1f(this.roughnessLoc, obj.material.roughness || this.material.roughness)
+      } else {
+        // Use default material properties
+        gl.uniform1f(this.shininessLoc, this.material.shininess)
+        gl.uniform1f(this.metallicLoc, this.material.metallic)
+        gl.uniform1f(this.roughnessLoc, this.material.roughness)
+      }
+      
       obj.draw(gl, this.shaderProgram, viewMatrix)
-      // console.log("rendering:", obj.name || obj)
     }
   }
 

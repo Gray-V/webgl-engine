@@ -109,9 +109,6 @@ class object {
 
     gl.uniform1i(gl.getUniformLocation(shaderProgram, 'showNormals'), this.meshData.showNormals)
     gl.uniform1i(gl.getUniformLocation(shaderProgram, 'clockwise'), this.meshData.clockwise)
-    gl.uniform3fv(gl.getUniformLocation(shaderProgram, 'lightDirection'), [2.0, -1.0, 0.0])
-    gl.uniform3fv(gl.getUniformLocation(shaderProgram, 'lightColor'), [1.0, 1.0, 1.0])
-    gl.uniform3fv(gl.getUniformLocation(shaderProgram, 'ambientColor'), [0.3, 0.3, 0.3])
 
     const drawMode = this.meshData.isWireFrame ? gl.LINES : gl.TRIANGLES
     gl.drawArrays(drawMode, 0, this.meshData.verts.length / 3)

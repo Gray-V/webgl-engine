@@ -27,6 +27,8 @@ const ShapesDemoScene = () => {
         objects.sphere.rotate(0.01, 0.02, 0.01)     // Medium X, fast Y, medium Z
         objects.cylinder.rotate(0.005, 0.005, 0.02) // Slow X, slow Y, fast Z
         objects.pyramid.rotate(0.015, 0.015, 0.015) // Equal speed on all axes
+        objects.metallicSphere.rotate(0.025, 0.025, 0.025) // Fast rotation for metallic effect
+        objects.glassSphere.rotate(0.03, 0.02, 0.01) // Very fast for glass effect
         
         // Render the scene
         scene.render()
@@ -46,15 +48,18 @@ const ShapesDemoScene = () => {
 
   return (
     <article>
-      <h2>Shapes Factory Demo</h2>
-      <p>Showcasing different 3D shapes created with the shapes factory</p>
+      <h2>Enhanced Shapes Factory Demo</h2>
+      <p>Showcasing 3D shapes with improved lighting, materials, and visual effects</p>
       <ul>
-        <li>Red Cube - Spinning on multiple axes</li>
-        <li>Blue Sphere - Smooth rotation</li>
-        <li>Green Cylinder - Rotating around Z-axis</li>
-        <li>Orange Pyramid - Balanced rotation</li>
-        <li>Green Ground - Static reference plane</li>
+        <li>Red Cube - Semi-metallic with medium shininess</li>
+        <li>Blue Sphere - Smooth with high shininess</li>
+        <li>Green Cylinder - Highly metallic and shiny</li>
+        <li>Orange Pyramid - Matte surface with low shininess</li>
+        <li>Gold Metallic Sphere - Highly reflective metallic material</li>
+        <li>Glass Sphere - Ultra-smooth with maximum shininess</li>
+        <li>Green Ground - Matte reference plane</li>
       </ul>
+      <p><strong>Features:</strong> Multiple light sources, specular highlights, rim lighting, gamma correction, and per-object materials</p>
       <canvas width={CANVAS_WIDTH} height={CANVAS_HEIGHT} ref={canvasRef}></canvas>
     </article>
   )
