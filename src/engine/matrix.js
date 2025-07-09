@@ -1,32 +1,51 @@
+// Column row (need to remember)
 const m4 = {
   identityMatrix() {
-    return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+    return [1, 0, 0, 0,
+            0, 1, 0, 0, 
+            0, 0, 1, 0, 
+            0, 0, 0, 1]
   },
 
   translationMatrix(tx, ty, tz) {
-    return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tx, ty, tz, 1]
+    return [1, 0, 0, 0, 
+            0, 1, 0, 0, 
+            0, 0, 1, 0, 
+            tx, ty, tz, 1]
   },
 
   xRotationMatrix(rad) {
     const c = Math.cos(rad)
     const s = Math.sin(rad)
-    return [1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1]
+    return [1, 0, 0, 0, 
+            0, c, -s, 0, 
+            0, s, c, 0, 
+            0, 0, 0, 1]
   },
 
   yRotationMatrix(rad) {
     const c = Math.cos(rad)
     const s = Math.sin(rad)
-    return [c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1]
+    return [c, 0, s, 0, 
+            0, 1, 0, 0, 
+            -s, 0, c, 0, 
+            0, 0, 0, 1]
   },
 
   zRotationMatrix(rad) {
     const c = Math.cos(rad)
     const s = Math.sin(rad)
-    return [c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+    return [c, s, 0, 0, 
+            -s, c, 0, 0, 
+            0, 0, 1, 0, 
+            0, 0, 0, 1]
   },
 
   scalingMatrix(sx, sy, sz) {
-    return [sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1]
+    return [sx, 0, 0, 0,
+            0, sy, 0, 0, 
+            0, 0, sz, 0, 
+            0, 0, 0, 1]
   },
 
   // Composite helpers to apply transformations
@@ -51,7 +70,10 @@ const m4 = {
   },
 
   transpose(m) {
-    return [m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]]
+    return [m[0], m[4], m[8], m[12], 
+            m[1], m[5], m[9], m[13], 
+            m[2], m[6], m[10], m[14], 
+            m[3], m[7], m[11], m[15]]
   },
 
   inverse(m) {
@@ -192,7 +214,10 @@ const m4 = {
     const f = Math.tan(Math.PI * 0.5 - 0.5 * fovDegrees)
     const rangeInv = 1.0 / (near - far)
 
-    return [f / aspect, 0, 0, 0, 0, -f, 0, 0, 0, 0, (near + far) * rangeInv, -1, 0, 0, near * far * rangeInv * 2, 0]
+    return [f / aspect, 0, 0, 0, 
+            0, -f, 0, 0, 
+            0, 0, (near + far) * rangeInv, -1, 
+            0, 0, near * far * rangeInv * 2, 0]
   },
 
   lookAt(eye, target, up) {
