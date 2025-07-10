@@ -8,9 +8,6 @@ import {
   createRectangleVertices
 } from './geometry/index.js'
 
-import freddyJson from '../../resources/Freddy.json'
-import fanBaseJson from '../../resources/fanBase.json'
-import fanBladeJson from '../../resources/fanBlade.json'
 
 const meshMaker = {
   // Geometry constructors that create meshData objects
@@ -49,30 +46,8 @@ const meshMaker = {
     const verts = json.vertices
     const uvs = json.uvs || null
     return new object(new meshData(verts, uvs, color), json.position, json.rotation, json.scale)
-  },
-
-  customFreddyObject: function () {
-    const verts = freddyJson.vertices
-    const uvs = freddyJson.uvs
-    return new object(new meshData(verts, uvs, [0, 0, 1]), [0, 0, 0], [0, 0, 0], [1, 1, 1])
-  },
-
-  customFanBaseObject: function () {
-    const verts = fanBaseJson.vertices
-    const uvs = fanBaseJson.uvs
-    return new object(new meshData(verts, uvs, [0, 0, 1]), [0, 0, 0], [0, 0, 0], [1, 1, 1])
-  },
-
-  customFanBladeObject: function () {
-    const verts = fanBladeJson.vertices
-    const uvs = fanBladeJson.uvs
-    for (let i = 0; i < verts.length; i++) {
-      if ((i + 1) % 3 === 0) {
-        verts[i] += 0.15
-      }
-    }
-    return new object(new meshData(verts, uvs, [0, 0, 1]), [0, 0, 0], [0, 0, 0], [1, 1, 1])
   }
+
 }
 
 export default meshMaker

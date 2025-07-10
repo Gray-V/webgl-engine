@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { formatMatrix } from './CameraCompareUtils.jsx';
 import { setupCanvas } from '../engine/canvasSetup.js';
 import { Shapes } from '../engine/shapes.js';
 import Camera from '../engine/camera.js';
