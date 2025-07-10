@@ -11,6 +11,7 @@ import ShapesDemoScene from './scenes/ShapesDemoScene.jsx'
 import ForwardRendererDemo from './scenes/ForwardRendererDemo.jsx'
 import DeferredRendererDemo from './scenes/DeferredRendererDemo.jsx'
 import RendererComparisonDemo from './scenes/RendererComparisonDemo.jsx'
+import CameraCompareDemo from './scenes/CameraCompareDemo.jsx'
 
 const App = () => {
   return (
@@ -101,6 +102,19 @@ const App = () => {
           >
             Spinning Cube
           </NavLink>
+          <NavLink 
+            to="/camera-compare" 
+            style={({ isActive }) => ({
+              padding: '8px 16px',
+              textDecoration: 'none',
+              backgroundColor: isActive ? '#FF9800' : '#fff',
+              color: isActive ? '#fff' : '#333',
+              borderRadius: '4px',
+              border: '1px solid #ddd'
+            })}
+          >
+            Camera Comparison Demo
+          </NavLink>
         </div>
       </nav>
 
@@ -113,6 +127,7 @@ const App = () => {
           <Route path="sandbox" element={<RandomObjScene />} />
           <Route path="cube" element={<NewMainScene />} />
           <Route path="shapes" element={<ShapesDemoScene />} />
+          <Route path="camera-compare" element={<CameraCompareDemo />} />
         </Routes>
       </main>
     </article>

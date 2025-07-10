@@ -1,10 +1,7 @@
 import meshMaker from './meshMaker.js'
 import object from './object.js'
 
-/**
- * Shapes factory - Create 3D shape objects directly
- * Provides convenient functions to create common 3D shapes with sensible defaults
- */
+
 
 export const Shapes = {
   /**
