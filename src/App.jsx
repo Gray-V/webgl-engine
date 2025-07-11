@@ -2,12 +2,12 @@ import { NavLink, Route, Routes } from 'react-router'
 
 import './App.css'
 
-import ShapesDemoScene from './scenes/ShapesDemoScene.jsx'
-import ForwardRendererDemo from './scenes/ForwardRendererDemo.jsx'
-import DeferredRendererDemo from './scenes/DeferredRendererDemo.jsx'
-import RendererComparisonDemo from './scenes/RendererComparisonDemo.jsx'
-import CameraCompareDemo from './scenes/CameraCompareDemo.jsx'
-import GLTFModelScene from './scenes/GLTFModelScene.jsx'
+import ShapesDemoScene from './scenes/shapes/ShapesDemoScene.jsx'
+import ForwardRendererDemo from './scenes/rendering/ForwardRendererDemo.jsx'
+import DeferredRendererDemo from './scenes/rendering/DeferredRendererDemo.jsx'
+import RendererComparisonDemo from './scenes/rendering/RendererComparisonDemo.jsx'
+import CameraCompareDemo from './scenes/camera/CameraCompareDemo.jsx'
+import GLTFModelScene from './scenes/gltf/GLTFModelScene.jsx'
 
 const App = () => {
   return (

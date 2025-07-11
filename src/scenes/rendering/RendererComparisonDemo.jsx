@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { setupCanvas } from '../engine/canvasSetup.js'
-import { createShapesDemoScene } from './shapesDemoScene.js'
-import { ForwardRenderer } from '../engine/renderers/ForwardRenderer.js'
-import { DeferredRenderer } from '../engine/renderers/DeferredRenderer.js'
-import { RendererFactory } from '../engine/renderers/RendererFactory.js'
+import { setupCanvas } from '../../engine/canvasSetup.js'
+import { createShapesDemoScene } from '../shapes/shapesDemoScene.js'
+import { ForwardRenderer } from '../../engine/renderers/ForwardRenderer.js'
+import { DeferredRenderer } from '../../engine/renderers/DeferredRenderer.js'
+import { RendererFactory } from '../../engine/renderers/RendererFactory.js'
 
 const CANVAS_WIDTH = 400
 const CANVAS_HEIGHT = 300

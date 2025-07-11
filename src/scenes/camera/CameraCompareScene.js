@@ -1,9 +1,9 @@
-import { setupCanvas } from '../engine/canvasSetup.js';
-import { Shapes } from '../engine/shapes.js';
-import Camera from '../engine/camera.js';
-import Scene from '../engine/scene.js';
-import object from '../engine/object.js';
-import { m4 } from '../engine/matrix.js';
+import { setupCanvas } from '../../engine/canvasSetup.js';
+import { Shapes } from '../../engine/shapes.js';
+import Camera from '../../engine/camera.js';
+import Scene from '../../engine/scene.js';
+import object from '../../engine/object.js';
+import { m4 } from '../../engine/matrix.js';
 import { VERTEX_SHADER, FRAGMENT_SHADER } from '../engine/helpers.js';
 
 export function CameraCompareScene({

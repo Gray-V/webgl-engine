@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { setupCanvas } from '../engine/canvasSetup.js'
+import { setupCanvas } from '../../engine/canvasSetup.js'
 import { createShapesDemoScene } from './shapesDemoScene.js'
 
 const CANVAS_WIDTH = 800
