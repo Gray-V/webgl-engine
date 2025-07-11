@@ -1,4 +1,4 @@
-import { m4, v3 } from './matrix.js'
+import { m4, v3 } from '../math/matrix.js'
 
 const meshUtil = {
   FindVertexNormals(verts) {

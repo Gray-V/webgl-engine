@@ -23,16 +23,16 @@ varying vec3 vFragPos;
 varying vec3 vWorldPos;
 
 void main(void) {
+  // Compose model-view matrix (column-major, right-handed)
   mat4 modelView = cameraTransform * sceneTransform * objectTransform;
   vec4 worldPos = modelView * vec4(vertexPosition, 1.0);
   gl_Position = projectionMatrix * modelView * vec4(vertexPosition, 1.0);
 
-  // Calculate normal in world space
+  // Normal in world space
   vNormal = normalize(normalMatrix * vertexNormal);
   if (flatShading) {
     vNormal = normalize(mat3(modelView) * vertexNormal);
   }
-
   if (clockwise) {
     vNormal = -vNormal;
   }
@@ -62,7 +62,6 @@ uniform vec3 lightDirection;
 uniform vec3 lightColor;
 uniform vec3 ambientColor;
 uniform bool showNormals;
-uniform bool flatShading;
 
 // Material properties
 uniform float shininess;
@@ -76,62 +75,67 @@ uniform int numLights;
 
 void main(void) {
   vec3 normal = normalize(vNormal);
-  vec3 viewDir = normalize(-vFragPos);
-  
-  // Initialize lighting
-  vec3 ambient = ambientColor * 0.3;
+  vec3 viewDir = normalize(-vFragPos); // Camera at origin in view space
+
+  // Show normals debug
+  if (showNormals) {
+    gl_FragColor = vec4(normal * 0.5 + 0.5, 1.0);
+    return;
+  }
+
+  // Ambient only path: if all lights are zero, output only ambient
+  bool noLights = all(lessThan(lightColor, vec3(0.0001))) && numLights == 0;
+  if (noLights) {
+    gl_FragColor = vec4(vColor * ambientColor, 1.0);
+    return;
+  }
+
+  // --- Lighting ---
+  vec3 ambient = ambientColor;
   vec3 diffuse = vec3(0.0);
   vec3 specular = vec3(0.0);
-  
-  // Main directional light
-  vec3 lightDir = normalize(lightDirection);
-  float diff = max(dot(normal, -lightDir), 0.0);
+
+  // Directional light
+  vec3 dir = normalize(lightDirection);
+  float diff = max(dot(normal, dir), 0.0);
   diffuse += diff * lightColor;
-  
-  // Specular reflection for main light
-  vec3 reflectDir = reflect(lightDir, normal);
+  // Specular for main light
+  vec3 reflectDir = reflect(-dir, normal);
   float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
   specular += spec * lightColor;
-  
+
   // Point lights
   for (int i = 0; i < 4; i++) {
     if (i >= numLights) break;
-    
-    vec3 lightDir = normalize(lightPositions[i] - vFragPos);
-    float distance = length(lightPositions[i] - vFragPos);
+    vec3 lp = lightPositions[i];
+    vec3 lc = lightColors[i];
+    vec3 lightDir = normalize(lp - vFragPos);
+    float distance = length(lp - vFragPos);
     float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
-    
     float diff = max(dot(normal, lightDir), 0.0);
-    diffuse += diff * lightColors[i] * attenuation;
-    
+    diffuse += diff * lc * attenuation;
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-    specular += spec * lightColors[i] * attenuation;
+    specular += spec * lc * attenuation;
   }
-  
-  // Fresnel effect for metallic materials
+
+  // Fresnel effect for metallic
   float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 5.0);
   vec3 fresnelColor = mix(vec3(0.04), vColor, metallic);
   specular += fresnel * fresnelColor;
-  
-  // Combine lighting
+
+  // Combine
   vec3 litColor = ambient + diffuse + specular;
-  
-  // Apply material properties
   vec3 finalColor = vColor * litColor;
-  
-  // Add some rim lighting for better shape definition
+
+  // Rim lighting for shape definition
   float rim = 1.0 - max(dot(normal, viewDir), 0.0);
   rim = pow(rim, 4.0);
   finalColor += rim * 0.2 * vColor;
-  
-  // Gamma correction for better visual appearance
+
+  // Gamma correction
   finalColor = pow(finalColor, vec3(1.0 / 2.2));
-  
-  if (showNormals) {
-    finalColor = normal * 0.5 + 0.5;
-  }
-  
+
   gl_FragColor = vec4(finalColor, 1.0);
 }
 `;

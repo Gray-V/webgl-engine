@@ -1,4 +1,4 @@
-import { m4 } from '../matrix.js'
+import { m4 } from '../math/matrix.js'
 
 /**
  * Base renderer class that provides common functionality

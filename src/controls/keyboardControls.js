@@ -1,4 +1,4 @@
-import { m4 } from '../engine/matrix.js'
+import { m4 } from '../engine/math/matrix.js'
 
 export function setupMovementControls(scene, cameraSpeed = 1, onCustomKeys = () => {}) {
   const keysDown = new Set()

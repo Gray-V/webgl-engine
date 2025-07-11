@@ -1,4 +1,4 @@
-import { m4 } from './matrix.js';
+import { m4 } from '../math/matrix.js';
 
 class Camera {
   constructor(position = [0, 0, -500], target = [0, 0, 0], up = [0, 1, 0]) {

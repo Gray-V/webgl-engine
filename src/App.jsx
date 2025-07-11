@@ -8,6 +8,7 @@ import DeferredRendererDemo from './scenes/rendering/DeferredRendererDemo.jsx'
 import RendererComparisonDemo from './scenes/rendering/RendererComparisonDemo.jsx'
 import CameraCompareDemo from './scenes/camera/CameraCompareDemo.jsx'
 import GLTFModelScene from './scenes/gltf/GLTFModelScene.jsx'
+import LightDemoScene from './scenes/lights/LightDemoScene.jsx'
 
 const App = () => {
   return (
@@ -98,6 +99,19 @@ const App = () => {
           >
             glTF Model Demo
           </NavLink>
+          <NavLink 
+            to="/lights" 
+            style={({ isActive }) => ({
+              padding: '8px 16px',
+              textDecoration: 'none',
+              backgroundColor: isActive ? '#E91E63' : '#fff',
+              color: isActive ? '#fff' : '#333',
+              borderRadius: '4px',
+              border: '1px solid #ddd'
+            })}
+          >
+            Light System Demo
+          </NavLink>
         </div>
       </nav>
 
@@ -110,6 +124,7 @@ const App = () => {
           <Route path="shapes" element={<ShapesDemoScene />} />
           <Route path="camera-compare" element={<CameraCompareDemo />} />
           <Route path="gltf-model" element={<GLTFModelScene />} />
+          <Route path="lights" element={<LightDemoScene />} />
         </Routes>
       </main>
     </article>

@@ -1,4 +1,4 @@
-import { v3 } from '../engine/matrix.js'
+import { v3 } from '../engine/math/matrix.js'
 
 export function setupMouseLook(camera, options = {}) {
   const sensitivity = options.sensitivity || 0.002

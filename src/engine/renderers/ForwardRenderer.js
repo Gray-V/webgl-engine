@@ -1,6 +1,6 @@
 import { BaseRenderer } from './BaseRenderer.js'
-import { VERTEX_SHADER, FRAGMENT_SHADER } from '../helpers.js'
-import { m4 } from '../matrix.js'
+import { VERTEX_SHADER, FRAGMENT_SHADER } from '../shaders/helpers.js'
+import { m4 } from '../math/matrix.js'
 
 /**
  * Forward Renderer - Traditional rendering approach

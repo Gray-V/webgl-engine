@@ -1,12 +1,12 @@
 import meshData from './meshData.js'
-import object from './object.js'
+import object from '../objects/object.js'
 import {
   createCubeVertices,
   createSphereVertices,
   createCylinderVertices,
   createPyramidVertices,
   createRectangleVertices
-} from './geometry/index.js'
+} from '../geometry/index.js'
 
 
 const meshMaker = {

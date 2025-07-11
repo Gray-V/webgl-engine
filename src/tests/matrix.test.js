@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import m4 from './matrix.js';
+import { m4 } from '../engine/math/matrix.js';
 
 
 describe('m4: Matrix Library Test Suite', () => {

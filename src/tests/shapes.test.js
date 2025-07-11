@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import Shapes, { createCube, createSphere, createBox } from './shapes.js'
+import Shapes, { createCube, createSphere, createBox } from '../engine/geometry/shapes.js'
 
 describe('Shapes Factory', () => {
   describe('Shapes.cube', () => {

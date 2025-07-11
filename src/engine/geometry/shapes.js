@@ -1,5 +1,5 @@
-import meshMaker from './meshMaker.js'
-import object from './object.js'
+import meshMaker from '../mesh/meshMaker.js'
+import object from '../objects/object.js'
 
 
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import object from './object.js'
-import m4 from './matrix.js'
+import object from '../engine/objects/object.js'
+import { m4 } from '../engine/math/matrix.js'
 
 // Dummy mesh with one triangle
 const mockMesh = {

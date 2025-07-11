@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { setupCanvas } from '../../engine/canvasSetup.js';
-import { loadGLTF } from '../../engine/gltfLoader.js';
-import Camera from '../../engine/camera.js';
-import { m4 } from '../../engine/matrix.js';
+import { setupCanvas } from '../../engine/webgl/canvasSetup.js';
+import { loadGLTF } from '../../engine/objects/gltfLoader.js';
+import Camera from '../../engine/camera/camera.js';
+import { m4 } from '../../engine/math/matrix.js';
 
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;

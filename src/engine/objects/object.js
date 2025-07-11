@@ -1,4 +1,4 @@
-import { m4 } from './matrix.js'
+import { m4 } from '../math/matrix.js'
 
 class object {
   constructor(meshData = null, position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], parent = null, name = '') {

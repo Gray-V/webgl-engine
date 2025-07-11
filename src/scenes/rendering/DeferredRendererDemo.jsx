@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { setupCanvas } from '../../engine/canvasSetup.js'
+import { setupCanvas } from '../../engine/webgl/canvasSetup.js'
 import { createDeferredRendererDemo } from './DeferredRendererDemo.js'
 import { DeferredRenderer } from '../../engine/renderers/DeferredRenderer.js'
 import { RendererFactory } from '../../engine/renderers/RendererFactory.js'

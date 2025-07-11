@@ -1,6 +1,6 @@
 import Scene from '../../engine/scene.js'
-import { VERTEX_SHADER, FRAGMENT_SHADER } from '../../engine/helpers.js'
-import Shapes from '../../engine/shapes.js'
+import { VERTEX_SHADER, FRAGMENT_SHADER } from '../../engine/shaders/helpers.js'
+import Shapes from '../../engine/geometry/shapes.js'
 
 export function createDeferredRendererDemo(gl) {
   const scene = new Scene(gl, VERTEX_SHADER, FRAGMENT_SHADER, true)

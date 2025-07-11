@@ -1,5 +1,5 @@
 import { BaseRenderer } from './BaseRenderer.js'
-import { m4 } from '../matrix.js'
+import { m4 } from '../math/matrix.js'
 
 /**
  * Deferred Renderer - Modern rendering approach

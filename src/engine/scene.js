@@ -1,7 +1,7 @@
-import { m4 } from './matrix.js'
-import Camera from './camera.js'
-import MeshMaker from './meshMaker.js'
-import meshData from './meshData.js'
+import { m4 } from './math/matrix.js'
+import Camera from './camera/camera.js'
+import MeshMaker from './mesh/meshMaker.js'
+import meshData from './mesh/meshData.js'
 
 class Scene {
   constructor(gl, vertexShaderSource, fragmentShaderSource, perspective = true, mainObj, cylinder2) {
@@ -19,7 +19,7 @@ class Scene {
     // Lighting setup
     this.lights = {
       directional: {
-        direction: [1, -1, 1],
+        direction: [-1, 1, -1], // Pointing away from light source (standard convention)
         color: [1.0, 1.0, 1.0],
         intensity: 1.0
       },
@@ -142,13 +142,19 @@ class Scene {
     gl.uniform3fv(this.lightColorLoc, dirLight.color)
     gl.uniform3fv(this.ambientColorLoc, [0.2, 0.2, 0.2])
     
-    // Point lights
-    const positions = []
-    const colors = []
-    for (let i = 0; i < this.lights.pointLights.length; i++) {
+    // Point lights - ensure we always have 4 lights worth of data (12 values each)
+    const positions = new Array(12).fill(0) // 4 lights × 3 components
+    const colors = new Array(12).fill(0)    // 4 lights × 3 components
+    
+    for (let i = 0; i < Math.min(this.lights.pointLights.length, 4); i++) {
       const light = this.lights.pointLights[i]
-      positions.push(...light.position)
-      colors.push(light.color[0] * light.intensity, light.color[1] * light.intensity, light.color[2] * light.intensity)
+      const baseIndex = i * 3
+      positions[baseIndex] = light.position[0]
+      positions[baseIndex + 1] = light.position[1]
+      positions[baseIndex + 2] = light.position[2]
+      colors[baseIndex] = light.color[0] * light.intensity
+      colors[baseIndex + 1] = light.color[1] * light.intensity
+      colors[baseIndex + 2] = light.color[2] * light.intensity
     }
     
     gl.uniform3fv(this.lightPositionsLoc, positions)

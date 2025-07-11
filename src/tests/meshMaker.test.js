@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import meshMaker from './meshMaker.js'
+import meshMaker from '../engine/mesh/meshMaker.js'
 
 describe('meshMaker', () => {
   it('creates a box with correct vertex count', () => {

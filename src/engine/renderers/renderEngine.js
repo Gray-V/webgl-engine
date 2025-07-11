@@ -1,5 +1,5 @@
-import { setupMovementControls } from '../controls/keyboardControls.js'
-import { setupMouseLook } from '../controls/mouseLookControls.js'
+import { setupMovementControls } from '../../controls/keyboardControls.js'
+import { setupMouseLook } from '../../controls/mouseLookControls.js'
 import freddy from '../../resources/Cupcake.json'
 
 export function initializeRenderer(gl, scene, options = {}, mainObject, cylinder2) {

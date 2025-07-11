@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import meshData from './meshData.js'
+import meshData from '../engine/mesh/meshData.js'
 
 describe('meshData', () => {
   it('constructs with vertices, uvs, and color', () => {

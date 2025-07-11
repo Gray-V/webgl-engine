@@ -1,0 +1,5 @@
+export { LightObject } from './lightObject.js'
+export { DirectionalLight } from './directionalLight.js'
+export { PointLight } from './pointLight.js'
+export { SpotLight } from './spotLight.js'
+export { AreaLight } from './areaLight.js' 
