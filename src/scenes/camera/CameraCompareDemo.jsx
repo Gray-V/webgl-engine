@@ -5,7 +5,7 @@ import Camera from '../../engine/camera/camera.js';
 import Scene from '../../engine/scene.js';
 import { m4 } from '../../engine/math/matrix.js';
 import object from '../../engine/objects/object.js';
-import { VERTEX_SHADER, FRAGMENT_SHADER } from '../../engine/shaders/helpers.js';
+import { VERTEX_SHADER, FRAGMENT_SHADER } from '../../engine/shaders/index.js';
 
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 450;

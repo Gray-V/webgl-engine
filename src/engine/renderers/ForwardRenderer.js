@@ -1,5 +1,5 @@
 import { BaseRenderer } from './BaseRenderer.js'
-import { VERTEX_SHADER, FRAGMENT_SHADER } from '../shaders/helpers.js'
+import { VERTEX_SHADER, FRAGMENT_SHADER } from '../shaders/index.js'
 import { m4 } from '../math/matrix.js'
 
 /**

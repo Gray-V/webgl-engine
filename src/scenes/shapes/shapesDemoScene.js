@@ -1,5 +1,5 @@
 import Scene from '../../engine/scene.js'
-import { VERTEX_SHADER, FRAGMENT_SHADER } from '../../engine/shaders/helpers.js'
+import { VERTEX_SHADER, FRAGMENT_SHADER } from '../../engine/shaders/index.js'
 import Shapes from '../../engine/geometry/shapes.js'
 
 export function createShapesDemoScene(gl) {

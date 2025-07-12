@@ -14,31 +14,11 @@ const AVAILABLE_MODELS = [
 
 ];
 
+import { GLTF_VERTEX_SHADER, GLTF_FRAGMENT_SHADER } from '../../engine/shaders/index.js';
+
 // Minimal vertex and fragment shaders for triangles, with projection/view and optional texturing
-const VERTEX_SHADER_SRC = `
-  attribute vec3 position;
-  attribute vec2 uv;
-  uniform mat4 uProjection;
-  uniform mat4 uView;
-  varying vec2 vUv;
-  void main() {
-    gl_Position = uProjection * uView * vec4(position, 1.0);
-    vUv = uv;
-  }
-`;
-const FRAGMENT_SHADER_SRC = `
-  precision mediump float;
-  varying vec2 vUv;
-  uniform sampler2D uTexture;
-  uniform bool uHasTexture;
-  void main() {
-    if (uHasTexture) {
-      gl_FragColor = texture2D(uTexture, vUv);
-    } else {
-      gl_FragColor = vec4(1, 1, 1, 1);
-    }
-  }
-`;
+const VERTEX_SHADER_SRC = GLTF_VERTEX_SHADER;
+const FRAGMENT_SHADER_SRC = GLTF_FRAGMENT_SHADER;
 function createShader(gl, type, source) {
   const shader = gl.createShader(type);
   gl.shaderSource(shader, source);
