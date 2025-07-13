@@ -4,7 +4,7 @@ export function createCylinderVertices(radius = 1, height = 2, radialSegments = 
   const halfHeight = height / 2
   const angleStep = (2 * Math.PI) / radialSegments
 
-  // Side faces
+  // Side faces - counter-clockwise winding for proper normals
   for (let i = 0; i < radialSegments; i++) {
     const theta = i * angleStep
     const nextTheta = (i + 1) * angleStep
@@ -14,18 +14,18 @@ export function createCylinderVertices(radius = 1, height = 2, radialSegments = 
     const x2 = radius * Math.cos(nextTheta)
     const z2 = radius * Math.sin(nextTheta)
 
-    // First triangle (bottom left)
+    // First triangle (counter-clockwise)
     verts.push(x1, -halfHeight, z1)
-    verts.push(x1, halfHeight, z1)
-    verts.push(x2, halfHeight, z2)
-
-    // Second triangle (top right)
-    verts.push(x1, -halfHeight, z1)
-    verts.push(x2, halfHeight, z2)
     verts.push(x2, -halfHeight, z2)
+    verts.push(x1, halfHeight, z1)
+
+    // Second triangle (counter-clockwise)
+    verts.push(x1, halfHeight, z1)
+    verts.push(x2, -halfHeight, z2)
+    verts.push(x2, halfHeight, z2)
   }
 
-  // Top cap
+  // Top cap - counter-clockwise winding
   for (let i = 0; i < radialSegments; i++) {
     const theta = i * angleStep
     const nextTheta = (i + 1) * angleStep
@@ -36,11 +36,11 @@ export function createCylinderVertices(radius = 1, height = 2, radialSegments = 
     const z2 = radius * Math.sin(nextTheta)
 
     verts.push(0, halfHeight, 0)
-    verts.push(x2, halfHeight, z2)
     verts.push(x1, halfHeight, z1)
+    verts.push(x2, halfHeight, z2)
   }
 
-  // Bottom cap
+  // Bottom cap - counter-clockwise winding
   for (let i = 0; i < radialSegments; i++) {
     const theta = i * angleStep
     const nextTheta = (i + 1) * angleStep
@@ -51,8 +51,8 @@ export function createCylinderVertices(radius = 1, height = 2, radialSegments = 
     const z2 = radius * Math.sin(nextTheta)
 
     verts.push(0, -halfHeight, 0)
-    verts.push(x1, -halfHeight, z1)
     verts.push(x2, -halfHeight, z2)
+    verts.push(x1, -halfHeight, z1)
   }
 
   return verts

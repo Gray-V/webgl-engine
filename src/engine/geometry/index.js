@@ -1,5 +1,7 @@
 export { createCubeVertices } from './cube.js'
+export { createCubeNormals } from './cube.js'
 export { createSphereVertices } from './sphere.js'
 export { createCylinderVertices } from './cylinder.js'
 export { createPyramidVertices } from './pyramid.js'
-export { createRectangleVertices } from './rectangle.js' 
+export { createRectangleVertices } from './rectangle.js'
+export { createCubeVerticesWithNormals } from './cube.js' 

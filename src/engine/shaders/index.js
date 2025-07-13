@@ -98,10 +98,10 @@ void main(void) {
 
   // Directional light
   vec3 dir = normalize(lightDirection);
-  float diff = max(dot(normal, dir), 0.0);
+  float diff = max(dot(normal, -dir), 0.0);
   diffuse += diff * lightColor;
   // Specular for main light
-  vec3 reflectDir = reflect(-dir, normal);
+  vec3 reflectDir = reflect(dir, normal);
   float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
   specular += spec * lightColor;
 

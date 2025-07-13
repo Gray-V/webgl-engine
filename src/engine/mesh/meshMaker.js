@@ -2,6 +2,7 @@ import meshData from './meshData.js'
 import object from '../objects/object.js'
 import {
   createCubeVertices,
+  createCubeNormals,
   createSphereVertices,
   createCylinderVertices,
   createPyramidVertices,
@@ -22,8 +23,10 @@ const meshMaker = {
   },
 
   boxConstructor: function (width, height, length) {
-    const verts = createCubeVertices(width, height, length)
-    return new meshData(verts, null, [1, 0, 0])
+    const { positions, normals } = createCubeVerticesWithNormals(width, height, length)
+    const mesh = new meshData(positions, null, [1, 0, 0])
+    mesh.normals = normals
+
   },
 
   pyramidConstructor: function (width, height) {

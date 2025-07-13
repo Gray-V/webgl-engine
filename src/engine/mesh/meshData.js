@@ -1,15 +1,22 @@
 import meshUtil from './meshUtils.js'
 
 class meshData {
-  constructor(verts, uvs, color) {
-    /*  verts is an array containing vertex data and face data
-            The format for verts is as follows:
-            Every three indexes represents a vertex
-            Every three vertexes represent a face
-            This also means vertexs are repeated    */
+  constructor(verts, uvs, color, normals = null) {
+    /* verts is a flat array containing triangles
+       Format: every 3 floats is a vertex, every 3 vertices is a triangle.
+       Vertex repetition is expected (not indexed). */
+
     this.verts = verts
     this.uvs = uvs
-    this.normals = meshUtil.FindVertexNormals(verts)
+
+    // Use custom normals if provided, otherwise generate them
+    this.normals = normals || meshUtil.FindVertexNormals(verts)
+
+    // Flip Y for all normals to match inverted Y projection
+    for (let i = 1; i < this.normals.length; i += 3) {
+      this.normals[i] = -this.normals[i];
+    }
+
     this.color = color
     this.isWireFrame = false
     this.isSmooth = true
