@@ -1,4 +1,4 @@
-import { m4, v3 } from '../math/matrix.js'
+import { v3 } from '../math/matrix.js'
 
 const meshUtil = {
   FindVertexNormals(verts) {
@@ -66,36 +66,30 @@ const meshUtil = {
 
     return normals
   },
-  FindFaceNormals(verts) {
-    //Same thin\g as above but vertexes inherit the face normals
+FindFaceNormals(verts) {
+  const normals = new Array(verts.length)
 
-    let normals = new Array(verts.length)
+  for (let i = 0; i < verts.length; i += 9) {
+    const v1 = [verts[i], verts[i + 1], verts[i + 2]]
+    const v2 = [verts[i + 3], verts[i + 4], verts[i + 5]]
+    const v3_ = [verts[i + 6], verts[i + 7], verts[i + 8]]
 
-    for (let i = 0; i < verts.length; i += 9) {
-      let vert1 = [verts[i], verts[i + 1], verts[i + 2]]
-      let vert2 = [verts[i + 3], verts[i + 4], verts[i + 5]]
-      let vert3 = [verts[i + 6], verts[i + 7], verts[i + 8]]
+    const edge1 = v3.subtract(v2, v1)
+    const edge2 = v3.subtract(v3_, v1)
+    const faceNormal = v3.normalize(v3.cross(edge1, edge2))
 
-      let edge1 = v3.subtract(vert2, vert1)
-      let edge2 = v3.subtract(vert3, vert1)
-
-      let faceNormal = v3.normalize(v3.cross(edge1, edge2))
-
-      normals[i] = faceNormal[0]
-      normals[i + 1] = faceNormal[1]
-      normals[i + 2] = faceNormal[2]
-
-      normals[i + 3] = faceNormal[0]
-      normals[i + 4] = faceNormal[1]
-      normals[i + 5] = faceNormal[2]
-
-      normals[i + 6] = faceNormal[0]
-      normals[i + 7] = faceNormal[1]
-      normals[i + 8] = faceNormal[2]
+    for (let j = 0; j < 3; j++) {
+      normals[i + j * 3 + 0] = faceNormal[0]
+      normals[i + j * 3 + 1] = faceNormal[1]
+      normals[i + j * 3 + 2] = faceNormal[2]
     }
-
-    return normals
   }
+
+  return normals
+}
+
+
+
 }
 
 export default meshUtil

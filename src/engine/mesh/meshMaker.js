@@ -1,13 +1,13 @@
 import meshData from './meshData.js'
 import object from '../objects/object.js'
 import {
-  createCubeVertices,
-  createCubeNormals,
   createSphereVertices,
   createCylinderVertices,
   createPyramidVertices,
-  createRectangleVertices
+  createRectangleVertices,
+  createCubeVertices
 } from '../geometry/index.js'
+import meshUtil from './meshUtils.js'
 
 
 const meshMaker = {
@@ -22,12 +22,70 @@ const meshMaker = {
     return new meshData(verts, null, [0, 1, 0])
   },
 
-  boxConstructor: function (width, height, length) {
-    const { positions, normals } = createCubeVerticesWithNormals(width, height, length)
-    const mesh = new meshData(positions, null, [1, 0, 0])
-    mesh.normals = normals
+cubeConstructor: function (width = 1, height = 1, depth = 1, color = [0.5, 0.5, 1]) {
+  const w = width / 2;
+  const h = height / 2;
+  const d = depth / 2;
 
-  },
+  const verts = [
+    // Front face
+    -w, -h,  d,  w, -h,  d,  w,  h,  d,
+    -w, -h,  d,  w,  h,  d, -w,  h,  d,
+
+    // Back face
+     w, -h, -d, -w, -h, -d, -w,  h, -d,
+     w, -h, -d, -w,  h, -d,  w,  h, -d,
+
+    // Top face
+    -w,  h,  d,  w,  h,  d,  w,  h, -d,
+    -w,  h,  d,  w,  h, -d, -w,  h, -d,
+
+    // Bottom face
+    -w, -h, -d,  w, -h, -d,  w, -h,  d,
+    -w, -h, -d,  w, -h,  d, -w, -h,  d,
+
+    // Right face
+     w, -h,  d,  w, -h, -d,  w,  h, -d,
+     w, -h,  d,  w,  h, -d,  w,  h,  d,
+
+    // Left face
+    -w, -h, -d, -w, -h,  d, -w,  h,  d,
+    -w, -h, -d, -w,  h,  d, -w,  h, -d,
+  ];
+
+  const normals = [
+    // Front face
+    0, 0, 1,  0, 0, 1,  0, 0, 1,
+    0, 0, 1,  0, 0, 1,  0, 0, 1,
+
+    // Back face
+    0, 0, -1,  0, 0, -1,  0, 0, -1,
+    0, 0, -1,  0, 0, -1,  0, 0, -1,
+
+    // Top face
+    0, 1, 0,  0, 1, 0,  0, 1, 0,
+    0, 1, 0,  0, 1, 0,  0, 1, 0,
+
+    // Bottom face
+    0, -1, 0,  0, -1, 0,  0, -1, 0,
+    0, -1, 0,  0, -1, 0,  0, -1, 0,
+
+    // Right face
+    1, 0, 0,  1, 0, 0,  1, 0, 0,
+    1, 0, 0,  1, 0, 0,  1, 0, 0,
+
+    // Left face
+    -1, 0, 0,  -1, 0, 0,  -1, 0, 0,
+    -1, 0, 0,  -1, 0, 0,  -1, 0, 0,
+  ];
+
+  return new meshData(verts, null, color, normals);
+}
+
+
+
+,
+
 
   pyramidConstructor: function (width, height) {
     const verts = createPyramidVertices(width, height)

@@ -196,8 +196,20 @@ const m4 = {
       b30 * a03 + b31 * a13 + b32 * a23 + b33 * a33
     ]
   },
+  
 
   orthographicProjection(left, right, bottom, top, near, far) {
+  return [
+    2 / (right - left), 0, 0, 0,
+    0, 2 / (top - bottom), 0, 0,
+    0, 0, -2 / (far - near), 0,
+    -(right + left) / (right - left),
+    -(top + bottom) / (top - bottom),
+    -(far + near) / (far - near),
+    1
+  ]
+},
+  orthographic(left, right, bottom, top, near, far) {
   return [
     2 / (right - left), 0, 0, 0,
     0, 2 / (top - bottom), 0, 0,
@@ -263,7 +275,15 @@ const v3 = {
 
   subtract(a, b) {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
-  }
+  },
+ scale(out, a, s) {
+  out[0] = a[0] * s;
+  out[1] = a[1] * s;
+  out[2] = a[2] * s;
+  return out;
+}
+
+
 }
 
 export { m4, v3 }

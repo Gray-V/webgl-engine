@@ -467,3 +467,149 @@ void main(void) {
   gl_FragColor = vec4(finalColor, 1.0);
 }
 `; 
+
+export const SHADOW_VERTEX_SHADER = `#ifdef GL_ES
+precision highp float;
+#endif
+
+attribute vec3 vertexPosition;
+attribute vec3 vertexNormal;
+
+uniform mat4 cameraTransform;
+uniform mat4 sceneTransform;
+uniform mat4 objectTransform;
+uniform mat4 projectionMatrix;
+uniform mat3 normalMatrix;
+
+uniform mat4 lightMVP; // NEW: Light's MVP matrix
+
+uniform vec3 objectColor;
+uniform bool showNormals;
+uniform bool clockwise;
+uniform bool flatShading;
+
+varying vec3 vColor;
+varying vec3 vNormal;
+varying vec3 vFragPos;
+varying vec3 vWorldPos;
+varying vec4 vShadowCoord; // NEW: Shadow map lookup coordinate
+
+void main(void) {
+  mat4 modelView = cameraTransform * sceneTransform * objectTransform;
+  vec4 worldPos = modelView * vec4(vertexPosition, 1.0);
+  gl_Position = projectionMatrix * modelView * vec4(vertexPosition, 1.0);
+
+  // Normal
+  vNormal = normalize(normalMatrix * vertexNormal);
+  if (flatShading) {
+    vNormal = normalize(mat3(modelView) * vertexNormal);
+  }
+  if (clockwise) {
+    vNormal = -vNormal;
+  }
+
+  vFragPos = worldPos.xyz;
+  vWorldPos = worldPos.xyz;
+  vShadowCoord = lightMVP * vec4(vertexPosition, 1.0); // NEW
+
+  vColor = showNormals ? (vNormal * 0.5 + 0.5) : objectColor;
+}
+
+`;
+
+export const SHADOW_FRAGMENT_SHADER = `#ifdef GL_ES
+precision highp float;
+#endif
+
+varying vec3 vColor;
+varying vec3 vNormal;
+varying vec3 vFragPos;
+varying vec3 vWorldPos;
+varying vec4 vShadowCoord;
+
+uniform vec3 lightDirection;
+uniform vec3 lightColor;
+uniform vec3 ambientColor;
+uniform bool showNormals;
+
+uniform float shininess;
+uniform float metallic;
+uniform float roughness;
+
+uniform vec3 lightPositions[4];
+uniform vec3 lightColors[4];
+uniform int numLights;
+
+uniform sampler2D shadowMap;
+
+float computeShadow(vec4 shadowCoord) {
+  vec3 projCoords = shadowCoord.xyz / shadowCoord.w;
+  projCoords = projCoords * 0.5 + 0.5;
+
+  if (projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
+    return 1.0;
+
+  float closestDepth = texture2D(shadowMap, projCoords.xy).r;
+  float currentDepth = projCoords.z;
+  float bias = 0.005;
+  return currentDepth - bias > closestDepth ? 0.3 : 1.0; // Shadowed = dimmed
+}
+
+void main(void) {
+  vec3 normal = normalize(vNormal);
+  vec3 viewDir = normalize(-vFragPos);
+
+  if (showNormals) {
+    gl_FragColor = vec4(normal * 0.5 + 0.5, 1.0);
+    return;
+  }
+
+  bool noLights = all(lessThan(lightColor, vec3(0.0001))) && numLights == 0;
+  if (noLights) {
+    gl_FragColor = vec4(vColor * ambientColor, 1.0);
+    return;
+  }
+
+  vec3 ambient = ambientColor;
+  vec3 diffuse = vec3(0.0);
+  vec3 specular = vec3(0.0);
+
+  // Directional light with shadow
+  vec3 dir = normalize(lightDirection);
+  float diff = max(dot(normal, -dir), 0.0);
+  float shadow = computeShadow(vShadowCoord);
+  diffuse += diff * lightColor * shadow;
+
+  vec3 reflectDir = reflect(dir, normal);
+  float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+  specular += spec * lightColor * shadow;
+
+  // Point lights
+  for (int i = 0; i < 4; i++) {
+    if (i >= numLights) break;
+    vec3 lp = lightPositions[i];
+    vec3 lc = lightColors[i];
+    vec3 lightDir = normalize(lp - vFragPos);
+    float distance = length(lp - vFragPos);
+    float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
+    float diff = max(dot(normal, lightDir), 0.0);
+    diffuse += diff * lc * attenuation;
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+    specular += spec * lc * attenuation;
+  }
+
+  float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 5.0);
+  vec3 fresnelColor = mix(vec3(0.04), vColor, metallic);
+  specular += fresnel * fresnelColor;
+
+  vec3 litColor = ambient + diffuse + specular;
+  vec3 finalColor = vColor * litColor;
+
+  float rim = pow(1.0 - max(dot(normal, viewDir), 0.0), 4.0);
+  finalColor += rim * 0.2 * vColor;
+
+  finalColor = pow(finalColor, vec3(1.0 / 2.2));
+  gl_FragColor = vec4(finalColor, 1.0);
+}
+`;
